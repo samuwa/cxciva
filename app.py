@@ -4,17 +4,19 @@ import os
 from datetime import datetime
 
 def process_excel(df):
-    # Format Document Date and Due Date to DD/MM/YYYY
-    if 'Document Date' in df.columns:
-        df['Document Date'] = pd.to_datetime(df['Document Date']).dt.strftime('%d/%m/%Y')
-    if 'Due Date' in df.columns:
-        df['Due Date'] = pd.to_datetime(df['Due Date']).dt.strftime('%d/%m/%Y')
+    
     
     # Calculate days overdue
     if 'Due Date' in df.columns:
         today = pd.to_datetime('today').normalize()  # Normalize to remove time component
         df['Due Date'] = pd.to_datetime(df['Due Date'], dayfirst=True)  # Ensure due date is treated as day-first format
         df['Dias Vencidos'] = (today - df['Due Date']).dt.days
+
+    # Format Document Date and Due Date to DD/MM/YYYY
+    if 'Document Date' in df.columns:
+        df['Document Date'] = pd.to_datetime(df['Document Date']).dt.strftime('%d/%m/%Y')
+    if 'Due Date' in df.columns:
+        df['Due Date'] = pd.to_datetime(df['Due Date']).dt.strftime('%d/%m/%Y')
 
     # Perform the calculations
     df['IVA BS'] = df['Sales Amount'] * 0.16
