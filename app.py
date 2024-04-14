@@ -5,9 +5,10 @@ from datetime import datetime
 
 def process_excel(df):
     # Convert date columns to dates only with specific format
-    date_format = "%m/%d/%Y"
-    df['Document Date'] = pd.to_datetime(df['Document Date'], format=date_format, errors='coerce').dt.date
-    df['Due Date'] = pd.to_datetime(df['Due Date'], format=date_format, errors='coerce').dt.date
+    # date_format = "%m/%d/%Y"
+    df['Document Date'] = df['Document Date'].apply(lambda x: x.date() if pd.notnull(x) else x)
+    df['Due Date'] = df['Due Date'].apply(lambda x: x.date() if pd.notnull(x) else x)
+
 
     # Perform the calculations
     df['IVA BS'] = df['Sales Amount'] * 0.16
