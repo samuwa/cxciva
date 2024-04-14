@@ -3,18 +3,12 @@ import pandas as pd
 import os
 from datetime import datetime
 
-import pandas as pd
-from datetime import datetime
-
 def process_excel(df):
-    print("Columns available in DataFrame: ", df.columns)  # Debug: List columns
+    # Convert date columns to dates only
+    df['Document Date'] = pd.to_datetime(df['Document Date']).dt.date
+    df['Due Date'] = pd.to_datetime(df['Due Date']).dt.date
 
-    required_columns = ['Sales Amount', 'Exchange Rate', 'Due Date']
-    missing_columns = [col for col in required_columns if col not in df.columns]
-    if missing_columns:
-        raise ValueError(f"Missing columns in DataFrame: {missing_columns}")
-
-    # Perform the calculations, assuming all required columns are present
+    # Perform the calculations
     df['IVA BS'] = df['Sales Amount'] * 0.16
     df['TOTAL BS'] = df['Sales Amount'] + df['IVA BS']
     df['SUBTOTAL $'] = df['Sales Amount'] / df['Exchange Rate']
@@ -23,22 +17,18 @@ def process_excel(df):
     df['75% IVA'] = df['IVA $'] * 0.75
     df['25% IVA'] = df['IVA $'] * 0.25
 
-    # Round all numerical columns to two decimal places
-    df = df.round(2)
-
-    # Format all datetime columns to date only
-    for col in df.select_dtypes(include=[pd.Timestamp]):
-        df[col] = pd.to_datetime(df[col]).dt.date
-
-    # Reapply specific rounding for 'Exchange Rate' to maintain four decimal places
-    df['Exchange Rate'] = df['Exchange Rate'].round(4)
-
-    # Calculate "Días Vencimiento"
+    # Calculate 'Días Vencimiento'
     today = datetime.now().date()
-    df['Due Date'] = pd.to_datetime(df['Due Date']).dt.date  # Ensure 'Due Date' is only the date
-    df['Días Vencimiento'] = (df['Due Date'] - today).dt.days
+    df['Días Vencimiento'] = (pd.to_datetime(df['Due Date']) - pd.to_datetime(today)).dt.days
+
+    # Selective rounding
+    numerical_cols = df.select_dtypes(include=['number']).columns.tolist()
+    numerical_cols.remove('Exchange Rate')  # Exclude Exchange Rate from rounding
+    df[numerical_cols] = df[numerical_cols].round(2)
+    df['Exchange Rate'] = df['Exchange Rate'].round(4)  # Round Exchange Rate to four decimal places
 
     return df
+
 
 
 
