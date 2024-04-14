@@ -13,19 +13,21 @@ def process_excel(df):
     df['75% IVA'] = df['IVA $'] * 0.75
     df['25% IVA'] = df['IVA $'] * 0.25
 
-    # Format date columns to remove time (assuming column names are 'Date Column')
-    df['Date Column'] = pd.to_datetime(df['Date Column']).dt.date
+    # Round all numerical columns to two decimal places
+    df = df.round(2)
 
-    # Ensure 4 decimal places for 'Exchange Rate'
+    # Format all datetime columns to date only
+    for col in df.select_dtypes(include=[pd.Timestamp]):
+        df[col] = pd.to_datetime(df[col]).dt.date
+
+    # Reapply specific rounding for 'Exchange Rate' to maintain four decimal places
     df['Exchange Rate'] = df['Exchange Rate'].round(4)
 
     # Calculate "Días Vencimiento"
     today = datetime.now().date()
-    df['Due Date'] = pd.to_datetime(df['Due Date']).dt.date  # Ensure 'Due Date' is only the date
-    df['Días Vencimiento'] = (df['Due Date'] - today).dt.days
-
-    # Round all numerical columns to two decimal places
-    df = df.round(2)
+    if 'Due Date' in df.columns:
+        df['Due Date'] = pd.to_datetime(df['Due Date']).dt.date  # Ensure 'Due Date' is only the date
+        df['Días Vencimiento'] = (df['Due Date'] - today).dt.days
 
     return df
 
