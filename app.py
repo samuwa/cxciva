@@ -3,8 +3,18 @@ import pandas as pd
 import os
 from datetime import datetime
 
+import pandas as pd
+from datetime import datetime
+
 def process_excel(df):
-    # Perform the calculations
+    print("Columns available in DataFrame: ", df.columns)  # Debug: List columns
+
+    required_columns = ['Sales Amount', 'Exchange Rate', 'Due Date']
+    missing_columns = [col for col in required_columns if col not in df.columns]
+    if missing_columns:
+        raise ValueError(f"Missing columns in DataFrame: {missing_columns}")
+
+    # Perform the calculations, assuming all required columns are present
     df['IVA BS'] = df['Sales Amount'] * 0.16
     df['TOTAL BS'] = df['Sales Amount'] + df['IVA BS']
     df['SUBTOTAL $'] = df['Sales Amount'] / df['Exchange Rate']
@@ -25,11 +35,11 @@ def process_excel(df):
 
     # Calculate "Días Vencimiento"
     today = datetime.now().date()
-    if 'Due Date' in df.columns:
-        df['Due Date'] = pd.to_datetime(df['Due Date']).dt.date  # Ensure 'Due Date' is only the date
-        df['Días Vencimiento'] = (df['Due Date'] - today).dt.days
+    df['Due Date'] = pd.to_datetime(df['Due Date']).dt.date  # Ensure 'Due Date' is only the date
+    df['Días Vencimiento'] = (df['Due Date'] - today).dt.days
 
     return df
+
 
 
 # Streamlit app
