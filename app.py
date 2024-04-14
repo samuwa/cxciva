@@ -6,8 +6,6 @@ from datetime import datetime
 def process_excel(df):
     # Convert date columns to dates only with specific format
     date_format = "%m/%d/%Y"
-    df['Document Date'] = df['Document Date'].apply(lambda x: x.date() if pd.notnull(x) else x)
-    df['Due Date'] = df['Due Date'].apply(lambda x: x.date() if pd.notnull(x) else x)
 
 
     # Perform the calculations
