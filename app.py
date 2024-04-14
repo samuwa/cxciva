@@ -25,18 +25,21 @@ def process_excel(df):
     df['75% IVA'] = df['IVA $'] * 0.75
     df['25% IVA'] = df['IVA $'] * 0.25
 
-    # Round all numerical columns to two decimal places
-    df = df.round(2)
-
-    # Round Exchange Rate to four decimal places
+    # Round Exchange Rate to four decimal places first
     if 'Exchange Rate' in df.columns:
         df['Exchange Rate'] = df['Exchange Rate'].round(4)
+
+    # Round all numerical columns to two decimal places, excluding 'Exchange Rate'
+    numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
+    numeric_cols.remove('Exchange Rate')  # Remove 'Exchange Rate' from the list
+    df[numeric_cols] = df[numeric_cols].round(2)
 
     # Drop specified columns
     columns_to_drop = ['COMPAÑIA', 'Sales Amount', 'Current Trx Amount', 'Original Trx Amount']
     df = df.drop(columns=columns_to_drop, errors='ignore')
 
     return df
+
 
 
 
