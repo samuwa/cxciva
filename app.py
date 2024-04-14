@@ -4,9 +4,10 @@ import os
 from datetime import datetime
 
 def process_excel(df):
-    # Convert date columns to dates only
-    df['Document Date'] = pd.to_datetime(df['Document Date'], errors="coerce").dt.date
-    df['Due Date'] = pd.to_datetime(df['Due Date'], errors="coerce").dt.date
+    # Convert date columns to dates only with specific format
+    date_format = "%m/%d/%Y"
+    df['Document Date'] = pd.to_datetime(df['Document Date'], format=date_format, errors='coerce').dt.date
+    df['Due Date'] = pd.to_datetime(df['Due Date'], format=date_format, errors='coerce').dt.date
 
     # Perform the calculations
     df['IVA BS'] = df['Sales Amount'] * 0.16
@@ -19,7 +20,7 @@ def process_excel(df):
 
     # Calculate 'Días Vencimiento'
     today = datetime.now().date()
-    df['Días Vencimiento'] = (pd.to_datetime(df['Due Date']) - pd.to_datetime(today)).dt.days
+    df['Días Vencimiento'] = (pd.to_datetime(df['Due Date'], format=date_format, errors='coerce') - pd.to_datetime(today)).dt.days
 
     # Selective rounding
     numerical_cols = df.select_dtypes(include=['number']).columns.tolist()
@@ -28,6 +29,7 @@ def process_excel(df):
     df['Exchange Rate'] = df['Exchange Rate'].round(4)  # Round Exchange Rate to four decimal places
 
     return df
+
 
 
 
