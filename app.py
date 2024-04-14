@@ -4,10 +4,12 @@ import os
 from datetime import datetime
 
 def process_excel(df):
-    # Convert date columns to dates only with specific format
-    date_format = "%m/%d/%Y"
-
-
+    # Format Document Date and Due Date to DD/MM/YYYY
+    if 'Document Date' in df.columns:
+        df['Document Date'] = pd.to_datetime(df['Document Date']).dt.strftime('%d/%m/%Y')
+    if 'Due Date' in df.columns:
+        df['Due Date'] = pd.to_datetime(df['Due Date']).dt.strftime('%d/%m/%Y')
+    
     # Perform the calculations
     df['IVA BS'] = df['Sales Amount'] * 0.16
     df['TOTAL BS'] = df['Sales Amount'] + df['IVA BS']
@@ -17,15 +19,8 @@ def process_excel(df):
     df['75% IVA'] = df['IVA $'] * 0.75
     df['25% IVA'] = df['IVA $'] * 0.25
 
-    # Calculate 'Días Vencimiento'
-    today = datetime.now().date()
-    df['Días Vencimiento'] = (pd.to_datetime(df['Due Date'], format=date_format, errors='coerce') - pd.to_datetime(today)).dt.days
-
-    # Selective rounding
-    numerical_cols = df.select_dtypes(include=['number']).columns.tolist()
-    numerical_cols.remove('Exchange Rate')  # Exclude Exchange Rate from rounding
-    df[numerical_cols] = df[numerical_cols].round(2)
-    df['Exchange Rate'] = df['Exchange Rate'].round(4)  # Round Exchange Rate to four decimal places
+    # Round all numerical columns to two decimal places
+    df = df.round(2)
 
     return df
 
