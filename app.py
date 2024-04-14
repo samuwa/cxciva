@@ -10,6 +10,12 @@ def process_excel(df):
     if 'Due Date' in df.columns:
         df['Due Date'] = pd.to_datetime(df['Due Date']).dt.strftime('%d/%m/%Y')
     
+    # Calculate days overdue
+    if 'Due Date' in df.columns:
+        today = pd.to_datetime('today').normalize()  # Normalize to remove time component
+        df['Due Date'] = pd.to_datetime(df['Due Date'], dayfirst=True)  # Ensure due date is treated as day-first format
+        df['Dias Vencidos'] = (today - df['Due Date']).dt.days
+
     # Perform the calculations
     df['IVA BS'] = df['Sales Amount'] * 0.16
     df['TOTAL BS'] = df['Sales Amount'] + df['IVA BS']
@@ -21,6 +27,14 @@ def process_excel(df):
 
     # Round all numerical columns to two decimal places
     df = df.round(2)
+
+    # Round Exchange Rate to four decimal places
+    if 'Exchange Rate' in df.columns:
+        df['Exchange Rate'] = df['Exchange Rate'].round(4)
+
+    # Drop specified columns
+    columns_to_drop = ['COMPAÑIA', 'Sales Amount', 'Current Trx Amount', 'Original Trx Amount']
+    df = df.drop(columns=columns_to_drop, errors='ignore')
 
     return df
 
