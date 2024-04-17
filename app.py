@@ -20,6 +20,8 @@ def process_excel(df):
 
     # Perform the calculations
     df['IVA BS'] = df['Sales Amount'] * 0.16
+    df['IVA BS 75%'] = df['IVA BS'] * 0.75
+    df['IVA BS 25%'] = df['IVA BS'] * 0.25
     df['TOTAL BS'] = df['Sales Amount'] + df['IVA BS']
     df['SUBTOTAL $'] = df['Sales Amount'] / df['Exchange Rate']
     df['IVA $'] = df['SUBTOTAL $'] * 0.16
@@ -37,8 +39,12 @@ def process_excel(df):
     df[numeric_cols] = df[numeric_cols].round(2)
 
     # Drop specified columns
-    columns_to_drop = ['COMPAÑIA', 'Sales Amount', 'Current Trx Amount', 'Original Trx Amount']
+    columns_to_drop = ['COMPAÑIA', 'Sales Amount'] # 'Current Trx Amount', 'Original Trx Amount']
     df = df.drop(columns=columns_to_drop, errors='ignore')
+
+    df = df.rename(columns={
+    'Current Trx Amount': 'Saldo Original BS',
+    'Original Trx Amount': 'Saldo Restante BS'})
 
     return df
 
