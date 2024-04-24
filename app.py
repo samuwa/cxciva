@@ -39,7 +39,7 @@ def process_excel(df):
     df[numeric_cols] = df[numeric_cols].round(2)
 
     # Drop specified columns
-    columns_to_drop = ['COMPAÑIA', 'Sales Amount'] # 'Current Trx Amount', 'Original Trx Amount']
+    columns_to_drop = ['Sales Amount'] # 'Current Trx Amount', 'Original Trx Amount']
     df = df.drop(columns=columns_to_drop, errors='ignore')
 
     df = df.rename(columns={
@@ -65,15 +65,18 @@ if uploaded_file is not None:
         df1, df2, df3, df4 = process_excel(df)
 
         # Save and provide download links for each DataFrame
-        for i, df_processed in enumerate([df1, df2, df3, df4], start=1):
-            output_file = f'processed_excel_file_{i}.xlsx'
-            df_processed.to_excel(output_file, index=False)
+        dataframes = [df1, df2, df3, df4]
+        for df_processed in dataframes:
+            if not df_processed.empty:
+                company_name = df_processed['COMPAÑIA'].iloc[0].replace(" ", "_").replace(".", "")  # Safe file naming
+                output_file = f'{company_name}.xlsx'
+                df_processed.to_excel(output_file, index=False)
 
-            with open(output_file, "rb") as file:
-                st.download_button(label=f"Download File {i}",
-                                   data=file,
-                                   file_name=output_file,
-                                   mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                with open(output_file, "rb") as file:
+                    st.download_button(label=f"Download {company_name} File",
+                                       data=file,
+                                       file_name=output_file,
+                                       mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
-            # Optionally, clean up the directory by removing the file after download
-            os.remove(output_file)
+                # Optionally, clean up the directory by removing the file after download
+                os.remove(output_file)
