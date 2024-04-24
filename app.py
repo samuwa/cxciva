@@ -46,14 +46,14 @@ def process_excel(df):
     'Current Trx Amount': 'Saldo Original BS',
     'Original Trx Amount': 'Saldo Restante BS'})
 
-    return df
+    df1 = df[(df['COMPAÑIA'] == 'FABRICA BRILUX C.A.') & (~df['Customer Name'].str.contains('AUTOMERCADOS PLAZA', na=False))]
+    df2 = df[(df['COMPAÑIA'] == 'FABRICA BRILUX C.A.') & (df['Customer Name'].str.contains('AUTOMERCADOS PLAZA', na=False))]
+    df3 = df[(df['COMPAÑIA'] == 'FABRICA EXTRUVENSO C.A.') & (~df['Customer Name'].str.contains('FERRETOTAL|CENTROBECO|FERRETERIA EPA', na=False))]
+    df4 = df[(df['COMPAÑIA'] == 'FABRICA EXTRUVENSO C.A.') & (df['Customer Name'].str.contains('FERRETOTAL|CENTROBECO|FERRETERIA EPA', na=False))]
 
+    return df1, df2, df3, df4
 
-
-
-
-
-# Streamlit app
+# Streamlit app code for file upload and processing
 st.title('Excel Processing App')
 
 uploaded_file = st.file_uploader("Choose an Excel file", type=['xlsx'])
@@ -62,18 +62,18 @@ if uploaded_file is not None:
     df = pd.read_excel(uploaded_file)
 
     if st.button('Process'):
-        processed_df = process_excel(df)
+        df1, df2, df3, df4 = process_excel(df)
 
-        # Save the processed DataFrame to a new Excel file
-        output_file = 'processed_excel_file.xlsx'
-        processed_df.to_excel(output_file, index=False)
+        # Save and provide download links for each DataFrame
+        for i, df_processed in enumerate([df1, df2, df3, df4], start=1):
+            output_file = f'processed_excel_file_{i}.xlsx'
+            df_processed.to_excel(output_file, index=False)
 
-        # Let the user download the processed file
-        with open(output_file, "rb") as file:
-            st.download_button(label="Download Processed Excel File",
-                               data=file,
-                               file_name=output_file,
-                               mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            with open(output_file, "rb") as file:
+                st.download_button(label=f"Download File {i}",
+                                   data=file,
+                                   file_name=output_file,
+                                   mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
-        # Optionally, clean up the directory by removing the file after download
-        os.remove(output_file)
+            # Optionally, clean up the directory by removing the file after download
+            os.remove(output_file)
