@@ -78,7 +78,7 @@ if uploaded_file is not None:
         # Download button to download the combined Excel file
         st.download_button(label="Download Processed Excel File",
                            data=output,
-                           file_name='combined_processed_excel.xlsx',
+                           file_name='CXC_Divisas_Segmentado.xlsx',
                            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
         # Reset the buffer
