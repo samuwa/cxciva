@@ -70,7 +70,7 @@ if uploaded_file is not None:
         for df_processed in dataframes:
             if not df_processed.empty:
                 company_name = df_processed['COMPAÑIA'].iloc[0].replace(" ", "_").replace(".", "")  # Safe file naming
-                output_file = f'{company_name}.xlsx'
+                output_file = f'{company_name}_{x}.xlsx'
                 df_processed.to_excel(output_file, index=False)
 
                 with open(output_file, "rb") as file:
