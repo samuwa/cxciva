@@ -46,14 +46,15 @@ def process_excel(df):
     'Current Trx Amount': 'Saldo Original BS',
     'Original Trx Amount': 'Saldo Restante BS'})
 
-    df1 = df[(df['COMPAÑIA'] == 'FABRICA BRILUX C.A.') & (~df['Customer Name'].str.contains('AUTOMERCADOS PLAZA', na=False))]
-    df2 = df[(df['COMPAÑIA'] == 'FABRICA BRILUX C.A.') & (df['Customer Name'].str.contains('AUTOMERCADOS PLAZA', na=False))]
-    df3 = df[(df['COMPAÑIA'] == 'FABRICA EXTRUVENSO C.A.') & (~df['Customer Name'].str.contains('FERRETOTAL|CENTROBECO|FERRETERIA EPA', na=False))]
-    df4 = df[(df['COMPAÑIA'] == 'FABRICA EXTRUVENSO C.A.') & (df['Customer Name'].str.contains('FERRETOTAL|CENTROBECO|FERRETERIA EPA', na=False))]
+    dfs = {
+        'BRILUX_no_Automercados': df[(df['COMPAÑIA'] == 'FABRICA BRILUX C.A.') & (~df['Customer Name'].str.contains('AUTOMERCADOS PLAZA', na=False))],
+        'BRILUX_Automercados': df[(df['COMPAÑIA'] == 'FABRICA BRILUX C.A.') & (df['Customer Name'].str.contains('AUTOMERCADOS PLAZA', na=False))],
+        'EXTRUVENSO_no_Specified': df[(df['COMPAÑIA'] == 'FABRICA EXTRUVENSO C.A.') & (~df['Customer Name'].str.contains('FERRETOTAL|CENTROBECO|FERRETERIA EPA', na=False))],
+        'EXTRUVENSO_Specified': df[(df['COMPAÑIA'] == 'FABRICA EXTRUVENSO C.A.') & (df['Customer Name'].str.contains('FERRETOTAL|CENTROBECO|FERRETERIA EPA', na=False))]
+    }
 
-    return df1, df2, df3, df4
+    return dfs
 
-# Streamlit app code for file upload and processing
 st.title('Excel Processing App')
 
 uploaded_file = st.file_uploader("Choose an Excel file", type=['xlsx'])
@@ -61,24 +62,23 @@ uploaded_file = st.file_uploader("Choose an Excel file", type=['xlsx'])
 if uploaded_file is not None:
     df = pd.read_excel(uploaded_file)
 
-    if st.button('Process'):
-        df1, df2, df3, df4 = process_excel(df)
+    if st.button('Process and Download Excel'):
+        processed_dfs = process_excel(df)  # Process the Excel file and get DataFrames
 
-        # Save and provide download links for each DataFrame
-        dataframes = [df1, df2, df3, df4]
-        x = 1
-        for df_processed in dataframes:
-            if not df_processed.empty:
-                company_name = df_processed['COMPAÑIA'].iloc[0].replace(" ", "_").replace(".", "")  # Safe file naming
-                output_file = f'{company_name}_{x}.xlsx'
-                df_processed.to_excel(output_file, index=False)
+        # Create a BytesIO buffer to save the Excel file
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            for sheet_name, df_processed in processed_dfs.items():
+                df_processed.to_excel(writer, sheet_name=sheet_name, index=False)
 
-                with open(output_file, "rb") as file:
-                    st.download_button(label=f"Download {company_name} File {x}",
-                                       data=file,
-                                       file_name=output_file,
-                                       mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        # Seek to the beginning of the stream
+        output.seek(0)
 
-                # Optionally, clean up the directory by removing the file after download
-                os.remove(output_file)
-            x += 1
+        # Download button to download the combined Excel file
+        st.download_button(label="Download Processed Excel File",
+                           data=output,
+                           file_name='combined_processed_excel.xlsx',
+                           mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+        # Reset the buffer
+        output.close()
