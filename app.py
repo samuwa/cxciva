@@ -66,6 +66,7 @@ if uploaded_file is not None:
 
         # Save and provide download links for each DataFrame
         dataframes = [df1, df2, df3, df4]
+        x = 1
         for df_processed in dataframes:
             if not df_processed.empty:
                 company_name = df_processed['COMPAÑIA'].iloc[0].replace(" ", "_").replace(".", "")  # Safe file naming
@@ -73,10 +74,11 @@ if uploaded_file is not None:
                 df_processed.to_excel(output_file, index=False)
 
                 with open(output_file, "rb") as file:
-                    st.download_button(label=f"Download {company_name} File",
+                    st.download_button(label=f"Download {company_name} File {x}",
                                        data=file,
                                        file_name=output_file,
                                        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
                 # Optionally, clean up the directory by removing the file after download
                 os.remove(output_file)
+            x += 1
