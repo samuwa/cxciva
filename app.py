@@ -52,8 +52,11 @@ def process_excel(df):
         'BRILUX_Automercados': df[(df['COMPAÑIA'] == 'FABRICA BRILUX C.A.') & (df['Customer Name'].str.contains('AUTOMERCADOS PLAZA', na=False))],
         'EXTRUVENSO_no_Specified': df[(df['COMPAÑIA'] == 'FABRICA EXTRUVENSO C.A.') & (~df['Customer Name'].str.contains('FERRETOTAL|CENTROBECO|FERRETERIA EPA', na=False))],
         'EXTRUVENSO_Specified': df[(df['COMPAÑIA'] == 'FABRICA EXTRUVENSO C.A.') & (df['Customer Name'].str.contains('FERRETOTAL|CENTROBECO|FERRETERIA EPA', na=False))],
-        'MAXPACK_no_Specified': df[(df['COMPAÑIA'] == 'GRUPO MAXPACK C.A.') & (~df['Customer Name'].str.contains('FERRETOTAL|CENTROBECO|FERRETERIA EPA', na=False))],
-        'MAXPACK_Specified': df[(df['COMPAÑIA'] == 'GRUPO MAXPACK C.A.') & (df['Customer Name'].str.contains('FERRETOTAL|CENTROBECO|FERRETERIA EPA', na=False))]
+        'MAXPACK_ferretoral': df[(df['COMPAÑIA'] == 'GRUPO MAXPACK C.A.') & (df['Customer Name'].str.contains('FERRETOTAL', na=False))],
+        'MAXPACK_centrobeco': df[(df['COMPAÑIA'] == 'GRUPO MAXPACK C.A.') & (df['Customer Name'].str.contains('CENTROBECO', na=False))],
+        'MAXPACK_epa': df[(df['COMPAÑIA'] == 'GRUPO MAXPACK C.A.') & (df['Customer Name'].str.contains('FERRETERIA EPA', na=False))]
+        # 'MAXPACK_no_Specified': df[(df['COMPAÑIA'] == 'GRUPO MAXPACK C.A.') & (~df['Customer Name'].str.contains('FERRETOTAL|CENTROBECO|FERRETERIA EPA', na=False))],
+        # 'MAXPACK_Specified': df[(df['COMPAÑIA'] == 'GRUPO MAXPACK C.A.') & (df['Customer Name'].str.contains('FERRETOTAL|CENTROBECO|FERRETERIA EPA', na=False))]
         
     }
 
